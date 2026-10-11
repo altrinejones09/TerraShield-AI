@@ -3,7 +3,7 @@
  * Detects missing data, out-of-bound measurements, implausible telemetry, and stale devices.
  */
 
-import type { SensorReading, Device, DeviceStatus, CreateReadingRequest } from '../types/telemetry';
+import type { SensorReading, DeviceStatus, CreateReadingRequest } from '../types/telemetry';
 
 export interface ValidationResult {
   isValid: boolean;

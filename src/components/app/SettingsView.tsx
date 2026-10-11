@@ -3,13 +3,10 @@ import {
   User,
   Bell,
   Sliders,
-  Cloud,
   RotateCcw,
   LogOut,
   CheckCircle2,
-  AlertTriangle,
   Server,
-  ShieldCheck,
   Save,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';

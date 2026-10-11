@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertTriangle, BookOpen, Scale, FileText, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, BookOpen, Scale } from 'lucide-react';
 
 export const MethodologyLimits: React.FC = () => {
   return (

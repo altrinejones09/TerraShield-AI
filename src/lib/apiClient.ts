@@ -13,7 +13,6 @@ import type {
   AcknowledgeAlertRequest,
   CreateDeviceRequest,
   HistoryQuery,
-  ApiResponse,
   HealthResponse,
 } from '../types/api';
 import {

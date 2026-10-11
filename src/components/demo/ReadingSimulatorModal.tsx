@@ -4,9 +4,7 @@ import {
   FlaskConical,
   AlertTriangle,
   CheckCircle2,
-  Sliders,
   Send,
-  Zap,
 } from 'lucide-react';
 import { useTelemetry } from '../../context/TelemetryContext';
 import { validateSensorInput } from '../../lib/sensorValidation';

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Shield, Activity, LogIn, UserPlus } from 'lucide-react';
+import React, { useState } from 'react';
+import { Shield, Activity, LogIn, UserPlus, Menu, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 interface NavbarProps {
@@ -8,12 +8,27 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
-  const { isAuthenticated, user, quickDemoLogin } = useAuth();
+  const { isAuthenticated, quickDemoLogin } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navLinks = [
+    { id: 'home', label: 'Overview' },
+    { id: 'problem', label: 'Problem & Solution' },
+    { id: 'how-it-works', label: 'How It Works' },
+    { id: 'architecture', label: 'Architecture' },
+    { id: 'impact', label: 'Environmental Impact' },
+    { id: 'methodology', label: 'Methodology & Limits' },
+  ];
+
+  const handleNavClick = (tabId: string) => {
+    onNavigate(tabId);
+    setMobileMenuOpen(false);
+  };
 
   return (
     <header
       style={{
-        height: 'var(--header-height)',
+        minHeight: 'var(--header-height)',
         borderBottom: '1px solid var(--border-subtle)',
         backgroundColor: 'rgba(10, 15, 29, 0.85)',
         backdropFilter: 'blur(16px)',
@@ -26,16 +41,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
         style={{
           maxWidth: '1440px',
           margin: '0 auto',
-          height: '100%',
+          height: 'var(--header-height)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 2rem',
+          padding: '0 1.5rem',
         }}
       >
         {/* Brand */}
         <div
-          onClick={() => onNavigate('home')}
+          onClick={() => handleNavClick('home')}
           style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}
         >
           <div
@@ -77,19 +92,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
           </div>
         </div>
 
-        {/* Navigation Links */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '1.75rem' }}>
-          {[
-            { id: 'home', label: 'Overview' },
-            { id: 'problem', label: 'Problem & Solution' },
-            { id: 'how-it-works', label: 'How It Works' },
-            { id: 'architecture', label: 'Architecture' },
-            { id: 'impact', label: 'Environmental Impact' },
-            { id: 'methodology', label: 'Methodology & Limits' },
-          ].map(item => (
+        {/* Desktop Navigation Links */}
+        <nav className="desktop-nav" aria-label="Main Navigation">
+          {navLinks.map(item => (
             <button
               key={item.id}
-              onClick={() => onNavigate(item.id)}
+              onClick={() => handleNavClick(item.id)}
               style={{
                 fontSize: '0.85rem',
                 fontWeight: currentTab === item.id ? 700 : 500,
@@ -117,12 +125,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
           ))}
         </nav>
 
-        {/* CTA Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {/* Desktop CTA Buttons */}
+        <div className="desktop-actions">
           {isAuthenticated ? (
             <button
               className="btn btn-primary btn-sm"
-              onClick={() => onNavigate('dashboard')}
+              onClick={() => handleNavClick('dashboard')}
             >
               <Activity size={15} />
               Open Workspace
@@ -138,14 +146,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
               </button>
               <button
                 className="btn btn-secondary btn-sm"
-                onClick={() => onNavigate('signin')}
+                onClick={() => handleNavClick('signin')}
               >
                 <LogIn size={14} />
                 Sign In
               </button>
               <button
                 className="btn btn-primary btn-sm"
-                onClick={() => onNavigate('signup')}
+                onClick={() => handleNavClick('signup')}
               >
                 <UserPlus size={14} />
                 Create Account
@@ -153,7 +161,92 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
             </>
           )}
         </div>
+
+        {/* Mobile Menu Toggle Button */}
+        <button
+          className="mobile-nav-toggle"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label={mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
+        >
+          {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
       </div>
+
+      {/* Mobile Drawer Dropdown */}
+      {mobileMenuOpen && (
+        <div
+          style={{
+            backgroundColor: '#080d1a',
+            borderBottom: '1px solid var(--border-subtle)',
+            padding: '1.25rem 1.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+          }}
+        >
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+            {navLinks.map(item => (
+              <button
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                style={{
+                  textAlign: 'left',
+                  fontSize: '0.92rem',
+                  fontWeight: currentTab === item.id ? 700 : 500,
+                  color: currentTab === item.id ? '#38bdf8' : '#cbd5e1',
+                  padding: '0.5rem 0',
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            {isAuthenticated ? (
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => handleNavClick('dashboard')}
+                style={{ width: '100%' }}
+              >
+                <Activity size={15} />
+                Open Workspace
+              </button>
+            ) : (
+              <>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => {
+                    quickDemoLogin();
+                    setMobileMenuOpen(false);
+                  }}
+                  style={{ width: '100%' }}
+                >
+                  Demo Workspace
+                </button>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => handleNavClick('signin')}
+                    style={{ flex: 1 }}
+                  >
+                    <LogIn size={14} />
+                    Sign In
+                  </button>
+                  <button
+                    className="btn btn-primary btn-sm"
+                    onClick={() => handleNavClick('signup')}
+                    style={{ flex: 1 }}
+                  >
+                    <UserPlus size={14} />
+                    Register
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 };

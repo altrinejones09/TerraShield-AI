@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cpu, Wifi, ShieldAlert, Radio, BellRing, Database } from 'lucide-react';
+import { Cpu, Wifi, ShieldAlert, BellRing } from 'lucide-react';
 
 export const HowItWorks: React.FC = () => {
   const steps = [

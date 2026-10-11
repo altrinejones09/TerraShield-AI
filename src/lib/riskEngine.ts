@@ -9,7 +9,6 @@
 
 import type {
   SensorReading,
-  RiskAssessment,
   RiskLevel,
   ThresholdCrossing,
   RiskThresholdConfig,
@@ -207,14 +206,14 @@ export function evaluateRisk(
 
   if (highCrossings.length > 0 || overallScore >= 75) {
     riskLevel = 'HIGH';
-    const reasonsList = highCrossings.map(t => `${t.label} at ${t.value}${t.unit} (exceeds ${t.threshold}${t.unit})`);
-    reason = `HIGH HAZARD: Critical threshold breach detected: ${reasonsList.join('; ')}. Severe slope instability or failure imminent.`;
-    recommendedAction = 'TRIGGER CRITICAL ADVISORY: Notify regional geotechnical engineers and prepare local life-safety evacuation procedures according to authority directives.';
+    const reasonsList = highCrossings.map(t => `${t.label} at ${t.value}${t.unit} (exceeds demo threshold ${t.threshold}${t.unit})`);
+    reason = `HIGH HAZARD (PROTOTYPE): Demonstration rules flag threshold breaches: ${reasonsList.join('; ')}. Prototype risk rules indicate elevated readings; field verification and local authority guidance are required.`;
+    recommendedAction = 'PROTOTYPE ADVISORY: Notify regional geotechnical engineers for field validation and follow local life-safety directives. Demonstration rules are not an official warning.';
   } else if (modCrossings.length > 0 || overallScore >= 45) {
     riskLevel = 'MODERATE';
-    const reasonsList = modCrossings.map(t => `${t.label} at ${t.value}${t.unit} (exceeds ${t.threshold}${t.unit})`);
-    reason = `MODERATE RISK: Elevated hydrological or kinematic readings: ${reasonsList.join('; ')}. Slope shear strength degrading.`;
-    recommendedAction = 'HEIGHTENED WATCH: Increase sensor sampling frequency, inspect visual slope markers, verify field drainage channels.';
+    const reasonsList = modCrossings.map(t => `${t.label} at ${t.value}${t.unit} (exceeds demo threshold ${t.threshold}${t.unit})`);
+    reason = `MODERATE RISK (PROTOTYPE): Elevated readings detected: ${reasonsList.join('; ')}. Prototype rules indicate increased hydrological or kinematic activity; ongoing monitoring advised.`;
+    recommendedAction = 'HEIGHTENED WATCH: Increase sensor sampling frequency, inspect visual slope markers, and verify field drainage channels.';
   }
 
   return {

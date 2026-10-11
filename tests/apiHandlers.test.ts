@@ -70,4 +70,16 @@ describe('TerraShield AI — Backend Handlers', () => {
     expect(body.data.riskAssessment).toBeDefined();
     expect(body.data.riskAssessment.riskLevel).toBe('MODERATE');
   });
+
+  it('GET /alerts returns active alerts array', async () => {
+    const res = await alertsHandler({
+      rawPath: '/alerts',
+      requestContext: { http: { method: 'GET', path: '/alerts', sourceIp: '127.0.0.1' } },
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    expect(body.success).toBe(true);
+    expect(Array.isArray(body.data)).toBe(true);
+  });
 });

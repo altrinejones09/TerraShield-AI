@@ -3,7 +3,7 @@
  * All data points generated here are VISIBLY LABELED as 'SIMULATED' demo records.
  */
 
-import type { Device, SensorReading, Alert, RiskAssessment } from '../types/telemetry';
+import type { Device, SensorReading, Alert } from '../types/telemetry';
 import { evaluateRisk } from './riskEngine';
 
 export const INITIAL_DEVICES: Device[] = [

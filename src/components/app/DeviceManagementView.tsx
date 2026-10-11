@@ -2,20 +2,12 @@ import React, { useState } from 'react';
 import {
   Cpu,
   Plus,
-  Server,
-  Layers,
   MapPin,
-  Clock,
-  CheckCircle2,
-  AlertTriangle,
   X,
-  Radio,
-  Sliders,
-  ShieldAlert,
 } from 'lucide-react';
 import { useTelemetry } from '../../context/TelemetryContext';
 import { StatusPill } from '../common/StatusPill';
-import type { CreateDeviceRequest, SensorType } from '../../types/telemetry';
+import type { CreateDeviceRequest } from '../../types/telemetry';
 
 export const DeviceManagementView: React.FC = () => {
   const { devices, registerDevice } = useTelemetry();
@@ -100,7 +92,7 @@ export const DeviceManagementView: React.FC = () => {
       </div>
 
       {/* Grid of Devices */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+      <div className="grid-cards">
         {devices.map(dev => {
           const isSelected = activeDevice?.deviceId === dev.deviceId;
 
@@ -320,6 +312,33 @@ export const DeviceManagementView: React.FC = () => {
                   style={{ width: '100%' }}
                   required
                 />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', color: '#cbd5e1', marginBottom: '0.3rem' }}>
+                    Latitude (°N)
+                  </label>
+                  <input
+                    type="text"
+                    value={newLat}
+                    onChange={e => setNewLat(e.target.value)}
+                    placeholder="11.4120"
+                    style={{ width: '100%' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', color: '#cbd5e1', marginBottom: '0.3rem' }}>
+                    Longitude (°E)
+                  </label>
+                  <input
+                    type="text"
+                    value={newLng}
+                    onChange={e => setNewLng(e.target.value)}
+                    placeholder="76.6980"
+                    style={{ width: '100%' }}
+                  />
+                </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>

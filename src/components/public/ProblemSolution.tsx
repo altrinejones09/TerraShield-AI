@@ -1,5 +1,5 @@
 import React from 'react';
-import { CloudRain, Droplet, Compass, Activity, Check, X, ShieldAlert } from 'lucide-react';
+import { CloudRain, Droplet, Compass, Activity, Check, X } from 'lucide-react';
 
 export const ProblemSolution: React.FC = () => {
   return (

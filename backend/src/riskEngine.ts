@@ -201,12 +201,12 @@ export function evaluateBackendRisk(
   if (highCrossings.length > 0 || overallScore >= 75) {
     riskLevel = 'HIGH';
     const reasonsList = highCrossings.map(t => `${t.label} at ${t.value}${t.unit}`);
-    reason = `HIGH HAZARD: Critical geotechnical breach: ${reasonsList.join('; ')}. Severe slope instability imminent.`;
-    recommendedAction = 'TRIGGER CRITICAL ADVISORY: Notify regional geotechnical engineers and prepare local life-safety evacuation procedures according to authority directives.';
+    reason = `HIGH HAZARD (PROTOTYPE): Demonstration rules flag threshold breaches: ${reasonsList.join('; ')}. Prototype risk rules indicate elevated readings; field verification and local authority guidance are required.`;
+    recommendedAction = 'PROTOTYPE ADVISORY: Notify regional geotechnical engineers for field validation and follow local life-safety directives. Demonstration rules are not an official warning.';
   } else if (modCrossings.length > 0 || overallScore >= 45) {
     riskLevel = 'MODERATE';
     const reasonsList = modCrossings.map(t => `${t.label} at ${t.value}${t.unit}`);
-    reason = `MODERATE RISK: Elevated hydrological or kinematic readings: ${reasonsList.join('; ')}. Slope shear strength degrading.`;
+    reason = `MODERATE RISK (PROTOTYPE): Elevated readings detected: ${reasonsList.join('; ')}. Prototype rules indicate increased activity; ongoing monitoring advised.`;
     recommendedAction = 'HEIGHTENED WATCH: Increase sensor sampling frequency and inspect visual slope markers.';
   }
 

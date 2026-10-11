@@ -40,6 +40,7 @@ const AppContent: React.FC = () => {
   // Workspace views: 'dashboard' | 'sensors' | 'risk' | 'alerts' | 'devices' | 'analytics' | 'settings'
   const [currentRoute, setCurrentRoute] = useState<string>('home');
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
 
   const isWorkspaceView = [
     'dashboard',
@@ -194,15 +195,21 @@ const AppContent: React.FC = () => {
       <div className="app-container">
         <AppSidebar
           currentView={currentRoute}
-          onSelectView={setCurrentRoute}
+          onSelectView={(view) => {
+            setCurrentRoute(view);
+            setMobileSidebarOpen(false);
+          }}
           collapsed={sidebarCollapsed}
           onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+          mobileOpen={mobileSidebarOpen}
+          onCloseMobile={() => setMobileSidebarOpen(false)}
         />
 
         <div className="main-content">
           <AppHeader
             currentViewTitle={getViewTitle()}
             onNavigateHome={() => setCurrentRoute('home')}
+            onToggleMobileSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)}
           />
 
           <main className="page-body">

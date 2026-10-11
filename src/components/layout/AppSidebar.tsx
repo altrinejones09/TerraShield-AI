@@ -8,9 +8,9 @@ import {
   LineChart,
   Settings,
   Shield,
-  Layers,
   ChevronLeft,
   ChevronRight,
+  X,
 } from 'lucide-react';
 import { useTelemetry } from '../../context/TelemetryContext';
 
@@ -19,6 +19,8 @@ interface AppSidebarProps {
   onSelectView: (view: string) => void;
   collapsed: boolean;
   onToggleCollapse: () => void;
+  mobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
 export const AppSidebar: React.FC<AppSidebarProps> = ({
@@ -26,6 +28,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   onSelectView,
   collapsed,
   onToggleCollapse,
+  mobileOpen = false,
+  onCloseMobile,
 }) => {
   const { alerts, devices, environmentStatus } = useTelemetry();
 
@@ -54,19 +58,37 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   ];
 
   return (
-    <aside
-      style={{
-        width: collapsed ? '72px' : 'var(--sidebar-width)',
-        backgroundColor: '#090e1c',
-        borderRight: '1px solid var(--border-subtle)',
-        display: 'flex',
-        flexDirection: 'column',
-        transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-        flexShrink: 0,
-        position: 'relative',
-        zIndex: 40,
-      }}
-    >
+    <>
+      {/* Mobile Drawer Backdrop */}
+      {mobileOpen && (
+        <div
+          onClick={onCloseMobile}
+          aria-hidden="true"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(5, 10, 20, 0.75)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 45,
+          }}
+        />
+      )}
+
+      <aside
+        className={`app-sidebar ${mobileOpen ? 'mobile-open' : ''}`}
+        aria-label="Workspace Navigation"
+        style={{
+          width: collapsed ? '72px' : 'var(--sidebar-width)',
+          backgroundColor: '#090e1c',
+          borderRight: '1px solid var(--border-subtle)',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+          flexShrink: 0,
+          position: 'relative',
+          zIndex: 40,
+        }}
+      >
       {/* Brand Header */}
       <div
         style={{
@@ -106,19 +128,38 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         </div>
 
         {!collapsed && (
-          <button
-            onClick={onToggleCollapse}
-            style={{
-              color: '#64748b',
-              padding: '0.35rem',
-              borderRadius: '6px',
-              display: 'flex',
-              alignItems: 'center',
-            }}
-            title="Collapse Sidebar"
-          >
-            <ChevronLeft size={16} />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            {onCloseMobile && (
+              <button
+                className="mobile-close-btn"
+                onClick={onCloseMobile}
+                style={{
+                  color: '#94a3b8',
+                  padding: '0.35rem',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+                aria-label="Close Mobile Navigation"
+              >
+                <X size={18} />
+              </button>
+            )}
+            <button
+              onClick={onToggleCollapse}
+              style={{
+                color: '#64748b',
+                padding: '0.35rem',
+                borderRadius: '6px',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+              title="Collapse Sidebar"
+              aria-label="Collapse Sidebar"
+            >
+              <ChevronLeft size={16} />
+            </button>
+          </div>
         )}
       </div>
 
@@ -223,6 +264,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           </div>
         </div>
       )}
-    </aside>
+      </aside>
+    </>
   );
 };

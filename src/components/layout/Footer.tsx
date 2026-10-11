@@ -1,5 +1,7 @@
 import React from 'react';
-import { AlertTriangle, Shield, Terminal, Cloud } from 'lucide-react';
+import { AlertTriangle, Shield } from 'lucide-react';
+
+const CURRENT_YEAR = new Date().getFullYear();
 
 interface FooterProps {
   minimal?: boolean;
@@ -84,7 +86,7 @@ export const Footer: React.FC<FooterProps> = ({ minimal = false }) => {
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', fontSize: '0.75rem', color: '#64748b' }}>
           <div>
-            © {new Date().getFullYear()} TerraShield AI Platform. Built with React, TypeScript &amp; AWS Serverless.
+            © {CURRENT_YEAR} TerraShield AI Platform. Built with React, TypeScript &amp; AWS Serverless.
           </div>
           <div style={{ display: 'flex', gap: '1.25rem' }}>
             <span>Environment: <strong>SIMULATED DEMONSTRATION</strong></span>

@@ -1,14 +1,8 @@
 import React, { useState } from 'react';
 import {
-  Bell,
   AlertTriangle,
   CheckCircle2,
-  Filter,
   ShieldCheck,
-  Clock,
-  User,
-  FileText,
-  Search,
 } from 'lucide-react';
 import { useTelemetry } from '../../context/TelemetryContext';
 import { useAuth } from '../../context/AuthContext';
@@ -77,6 +71,7 @@ export const AlertsCenterView: React.FC = () => {
           <select
             value={severityFilter}
             onChange={e => setSeverityFilter(e.target.value as any)}
+            aria-label="Filter alerts by severity level"
             style={{ fontSize: '0.8rem', padding: '0.4rem 0.75rem' }}
           >
             <option value="ALL">All Severities</option>
@@ -89,6 +84,7 @@ export const AlertsCenterView: React.FC = () => {
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value as any)}
+            aria-label="Filter alerts by acknowledgment status"
             style={{ fontSize: '0.8rem', padding: '0.4rem 0.75rem' }}
           >
             <option value="ALL">All Statuses</option>
@@ -99,7 +95,7 @@ export const AlertsCenterView: React.FC = () => {
       </div>
 
       {/* Main Alert Feed & Details Drawer Split View */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.5rem' }}>
+      <div className="grid-split">
         {/* Left: Alerts List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
           {filteredAlerts.length === 0 ? (

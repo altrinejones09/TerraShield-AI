@@ -137,7 +137,7 @@ export async function readingsHandler(event: ApiGatewayEvent): Promise<LambdaRes
       headers: CORS_HEADERS,
       body: JSON.stringify({ success: false, error: `Route not found: ${method} ${path}` }),
     };
-  } catch (err: any) {
+  } catch {
     return {
       statusCode: 500,
       headers: CORS_HEADERS,

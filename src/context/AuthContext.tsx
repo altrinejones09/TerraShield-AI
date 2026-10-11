@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import type { UserProfile } from '../types/telemetry';
 import { loadUser, saveUser, DEFAULT_USER } from '../lib/storage';
 import { apiClient } from '../lib/apiClient';
@@ -24,23 +24,20 @@ const COGNITO_USER_POOL_ID = import.meta.env.VITE_COGNITO_USER_POOL_ID || '';
 const SESSION_TOKEN_KEY = 'terrashield_auth_token';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const cognitoEnabled = Boolean(COGNITO_USER_POOL_ID);
-
-  useEffect(() => {
-    // Check existing stored session
-    const token = localStorage.getItem(SESSION_TOKEN_KEY);
-    if (token) {
-      const savedUser = loadUser();
-      setUser(savedUser);
-      apiClient.setAuthToken(token);
-    } else {
-      // Default initial state: user can browse public marketing pages or click "Demo Login"
-      setUser(null);
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    try {
+      const token = localStorage.getItem(SESSION_TOKEN_KEY);
+      if (token) {
+        apiClient.setAuthToken(token);
+        return loadUser();
+      }
+    } catch {
+      // Fallback if localStorage unavailable
     }
-    setIsLoading(false);
-  }, []);
+    return null;
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const cognitoEnabled = Boolean(COGNITO_USER_POOL_ID);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);

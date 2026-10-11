@@ -10,7 +10,6 @@ import {
   Battery,
   Wifi,
   Search,
-  Filter,
   Download,
 } from 'lucide-react';
 import { useTelemetry } from '../../context/TelemetryContext';
@@ -18,13 +17,39 @@ import { StatusPill } from '../common/StatusPill';
 import { RiskBadge } from '../common/RiskBadge';
 import { MetricCard } from '../common/MetricCard';
 
+const exportTelemetryCsv = (dataList: any[]) => {
+  const headers = ['id', 'deviceId', 'timestamp', 'rainfall_mm_h', 'rainfall24h_mm', 'soilMoisture_pct', 'tilt_deg', 'vibration_g', 'temp_c', 'humidity_pct', 'riskLevel', 'source'];
+  const rows = dataList.map(r => [
+    r.id,
+    r.deviceId,
+    r.timestamp,
+    r.rainfall,
+    r.rainfall24h,
+    r.soilMoisture,
+    r.tilt,
+    r.vibration,
+    r.temperature,
+    r.humidity,
+    r.riskLevel,
+    r.source,
+  ]);
+
+  const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', `terrashield_telemetry_export.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 export const SensorMonitoringView: React.FC = () => {
   const {
     devices,
     latestReadings,
     readings,
     selectedDeviceId,
-    setSelectedDeviceId,
     thresholds,
   } = useTelemetry();
 
@@ -55,32 +80,7 @@ export const SensorMonitoringView: React.FC = () => {
   const totalPages = Math.ceil(filteredList.length / pageSize) || 1;
   const paginatedList = filteredList.slice((page - 1) * pageSize, page * pageSize);
 
-  const exportCsv = () => {
-    const headers = ['id', 'deviceId', 'timestamp', 'rainfall_mm_h', 'rainfall24h_mm', 'soilMoisture_pct', 'tilt_deg', 'vibration_g', 'temp_c', 'humidity_pct', 'riskLevel', 'source'];
-    const rows = filteredList.map(r => [
-      r.id,
-      r.deviceId,
-      r.timestamp,
-      r.rainfall,
-      r.rainfall24h,
-      r.soilMoisture,
-      r.tilt,
-      r.vibration,
-      r.temperature,
-      r.humidity,
-      r.riskLevel,
-      r.source,
-    ]);
-
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `terrashield_telemetry_${Date.now()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  const exportCsv = () => exportTelemetryCsv(filteredList);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
@@ -229,7 +229,7 @@ export const SensorMonitoringView: React.FC = () => {
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-wrapper">
           <table className="data-table">
             <thead>
               <tr>

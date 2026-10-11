@@ -2,7 +2,7 @@ import type { ApiGatewayEvent, LambdaResponse } from '../types';
 import { CORS_HEADERS } from '../auth';
 import { db } from '../db';
 
-export async function healthHandler(event: ApiGatewayEvent): Promise<LambdaResponse> {
+export async function healthHandler(_event?: ApiGatewayEvent): Promise<LambdaResponse> {
   const body = {
     status: 'healthy',
     service: 'TerraShield AI Backend',

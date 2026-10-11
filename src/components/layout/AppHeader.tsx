@@ -4,8 +4,7 @@ import {
   FlaskConical,
   LogOut,
   User,
-  ShieldCheck,
-  ChevronDown,
+  Menu,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTelemetry } from '../../context/TelemetryContext';
@@ -14,9 +13,14 @@ import { StatusPill } from '../common/StatusPill';
 interface AppHeaderProps {
   currentViewTitle: string;
   onNavigateHome: () => void;
+  onToggleMobileSidebar?: () => void;
 }
 
-export const AppHeader: React.FC<AppHeaderProps> = ({ currentViewTitle, onNavigateHome }) => {
+export const AppHeader: React.FC<AppHeaderProps> = ({
+  currentViewTitle,
+  onNavigateHome,
+  onToggleMobileSidebar,
+}) => {
   const { user, logout } = useAuth();
   const {
     devices,
@@ -25,27 +29,49 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ currentViewTitle, onNaviga
     refreshAll,
     isLoading,
     setIsSimulatorOpen,
-    environmentStatus,
     lastUpdated,
   } = useTelemetry();
 
   return (
     <header
       style={{
-        height: 'var(--header-height)',
+        minHeight: 'var(--header-height)',
         backgroundColor: '#0a0f1d',
         borderBottom: '1px solid var(--border-subtle)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 1.75rem',
+        padding: '0.6rem 1.25rem',
         position: 'sticky',
         top: 0,
         zIndex: 30,
+        gap: '0.75rem',
+        flexWrap: 'wrap',
       }}
     >
-      {/* Left: Breadcrumbs & View Title */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      {/* Left: Mobile Toggle + Breadcrumbs & View Title */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        {onToggleMobileSidebar && (
+          <button
+            onClick={onToggleMobileSidebar}
+            className="mobile-menu-btn"
+            style={{
+              padding: '0.4rem',
+              color: '#94a3b8',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+            }}
+            aria-label="Toggle workspace navigation menu"
+          >
+            <Menu size={18} />
+          </button>
+        )}
+
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.72rem', color: '#64748b' }}>
             <span
@@ -60,24 +86,26 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ currentViewTitle, onNaviga
             <span>/</span>
             <span style={{ color: '#94a3b8' }}>{currentViewTitle}</span>
           </div>
-          <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', marginTop: '0.1rem' }}>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', marginTop: '0.1rem', margin: 0 }}>
             {currentViewTitle}
           </h2>
         </div>
 
         {/* Global Node Filter Dropdown */}
-        <div style={{ marginLeft: '1rem' }}>
+        <div style={{ marginLeft: '0.5rem' }}>
           <select
             value={selectedDeviceId}
             onChange={e => setSelectedDeviceId(e.target.value)}
+            aria-label="Filter monitored sectors by telemetry node"
             style={{
               padding: '0.4rem 0.75rem',
               fontSize: '0.8rem',
-              backgroundColor: 'rgba(22, 32, 56, 0.7)',
+              backgroundColor: 'rgba(22, 32, 56, 0.85)',
               color: '#f8fafc',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
               borderRadius: '8px',
               cursor: 'pointer',
+              maxWidth: '240px',
             }}
           >
             <option value="ALL">All Monitored Sectors ({devices.length} Nodes)</option>
@@ -91,7 +119,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ currentViewTitle, onNaviga
       </div>
 
       {/* Right Controls */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
         {/* Source Badge */}
         <StatusPill type="data-source" value="SIMULATED" size="sm" />
 
@@ -107,7 +135,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ currentViewTitle, onNaviga
           title="Inject a test reading to trigger deterministic risk engine rules"
         >
           <FlaskConical size={14} />
-          Inject Test Reading
+          <span>Inject Test</span>
         </button>
 
         {/* Manual Refresh */}

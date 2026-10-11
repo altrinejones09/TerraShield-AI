@@ -1,14 +1,8 @@
 import React from 'react';
 import {
   ShieldAlert,
-  AlertTriangle,
-  Sliders,
   CheckCircle2,
-  Clock,
   Sparkles,
-  Info,
-  Layers,
-  ArrowRight,
 } from 'lucide-react';
 import { useTelemetry } from '../../context/TelemetryContext';
 import { RiskBadge } from '../common/RiskBadge';
@@ -19,10 +13,6 @@ export const RiskAnalysisView: React.FC = () => {
     currentAssessments,
     selectedDeviceId,
     devices,
-    latestReadings,
-    thresholds,
-    updateThresholds,
-    readings,
   } = useTelemetry();
 
   const activeAssessment =
@@ -32,9 +22,6 @@ export const RiskAnalysisView: React.FC = () => {
 
   const activeDevice =
     activeAssessment && devices.find(d => d.deviceId === activeAssessment.deviceId);
-
-  const activeReading =
-    activeAssessment && latestReadings.find(r => r.deviceId === activeAssessment.deviceId);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
@@ -126,7 +113,7 @@ export const RiskAnalysisView: React.FC = () => {
                 <span>All geotechnical parameters remain within safe baseline limits. No thresholds breached.</span>
               </div>
             ) : (
-              <div style={{ overflowX: 'auto' }}>
+              <div className="table-wrapper">
                 <table className="data-table">
                   <thead>
                     <tr>

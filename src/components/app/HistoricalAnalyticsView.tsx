@@ -1,23 +1,13 @@
 import React, { useState } from 'react';
-import {
-  LineChart,
-  Calendar,
-  Layers,
-  TrendingUp,
-  Download,
-  AlertTriangle,
-  Info,
-} from 'lucide-react';
+import { Info } from 'lucide-react';
 import { useTelemetry } from '../../context/TelemetryContext';
 import { TimeSeriesChart } from '../common/TimeSeriesChart';
-import { RiskBadge } from '../common/RiskBadge';
 
 export const HistoricalAnalyticsView: React.FC = () => {
   const {
     devices,
     readings,
     selectedDeviceId,
-    setSelectedDeviceId,
     timeRange,
     setTimeRange,
     thresholds,
@@ -60,6 +50,27 @@ export const HistoricalAnalyticsView: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          {/* Focus mode selector */}
+          <div style={{ display: 'flex', gap: '0.3rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', padding: '0.2rem', borderRadius: '6px' }}>
+            {(['combined', 'hydrological', 'kinematic'] as const).map(focus => (
+              <button
+                key={focus}
+                onClick={() => setMetricFocus(focus)}
+                style={{
+                  padding: '0.35rem 0.65rem',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  borderRadius: '4px',
+                  textTransform: 'capitalize',
+                  color: metricFocus === focus ? '#ffffff' : '#94a3b8',
+                  backgroundColor: metricFocus === focus ? '#0284c7' : 'transparent',
+                }}
+              >
+                {focus}
+              </button>
+            ))}
+          </div>
+
           {/* Time range selector */}
           <div style={{ display: 'flex', gap: '0.3rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', padding: '0.2rem', borderRadius: '6px' }}>
             {(['6h', '24h', '7d'] as const).map(range => (
@@ -83,7 +94,7 @@ export const HistoricalAnalyticsView: React.FC = () => {
       </div>
 
       {/* Aggregate Statistics Overview */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
+      <div className="grid-cards">
         <div className="glass-panel" style={{ padding: '1.25rem' }}>
           <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>
             Peak Rainfall Event
@@ -127,32 +138,36 @@ export const HistoricalAnalyticsView: React.FC = () => {
 
       {/* Main Analytic Charts */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        <TimeSeriesChart
-          title="Hydrological Surcharge vs Volumetric Soil Moisture"
-          subtitle="Direct visualization of pore pressure accumulation under rainfall events"
-          data={filtered}
-          series={[
-            { key: 'rainfall', label: 'Rainfall Rate', color: '#0ea5e9', unit: 'mm/h' },
-            { key: 'rainfall24h', label: 'Cumulative 24h Rain', color: '#38bdf8', unit: 'mm' },
-            { key: 'soilMoisture', label: 'Soil Moisture VWC', color: '#10b981', unit: '%' },
-          ]}
-          thresholdMod={thresholds.soilMoistureMod}
-          thresholdHigh={thresholds.soilMoistureHigh}
-          height={260}
-        />
+        {(metricFocus === 'combined' || metricFocus === 'hydrological') && (
+          <TimeSeriesChart
+            title="Hydrological Surcharge vs Volumetric Soil Moisture"
+            subtitle="Direct visualization of pore pressure accumulation under rainfall events"
+            data={filtered}
+            series={[
+              { key: 'rainfall', label: 'Rainfall Rate', color: '#0ea5e9', unit: 'mm/h' },
+              { key: 'rainfall24h', label: 'Cumulative 24h Rain', color: '#38bdf8', unit: 'mm' },
+              { key: 'soilMoisture', label: 'Soil Moisture VWC', color: '#10b981', unit: '%' },
+            ]}
+            thresholdMod={thresholds.soilMoistureMod}
+            thresholdHigh={thresholds.soilMoistureHigh}
+            height={260}
+          />
+        )}
 
-        <TimeSeriesChart
-          title="Kinematic Inclinometer Angular Creep Trajectory"
-          subtitle="Cumulative tilt deflection indicative of shear failure plane progression"
-          data={filtered}
-          series={[
-            { key: 'tilt', label: 'Biaxial Inclinometer Tilt', color: '#fbbf24', unit: '°' },
-            { key: 'vibration', label: 'Vibration Acceleration', color: '#f43f5e', unit: 'g' },
-          ]}
-          thresholdMod={thresholds.tiltMod}
-          thresholdHigh={thresholds.tiltHigh}
-          height={260}
-        />
+        {(metricFocus === 'combined' || metricFocus === 'kinematic') && (
+          <TimeSeriesChart
+            title="Kinematic Inclinometer Angular Creep Trajectory"
+            subtitle="Cumulative tilt deflection indicative of shear failure plane progression"
+            data={filtered}
+            series={[
+              { key: 'tilt', label: 'Biaxial Inclinometer Tilt', color: '#fbbf24', unit: '°' },
+              { key: 'vibration', label: 'Vibration Acceleration', color: '#f43f5e', unit: 'g' },
+            ]}
+            thresholdMod={thresholds.tiltMod}
+            thresholdHigh={thresholds.tiltHigh}
+            height={260}
+          />
+        )}
       </div>
 
       {/* Geotechnical Correlation Note */}

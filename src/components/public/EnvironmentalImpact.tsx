@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mountain, Trees, ShieldCheck, HeartHandshake, Waves } from 'lucide-react';
+import { Mountain, Trees, HeartHandshake, Waves } from 'lucide-react';
 
 export const EnvironmentalImpact: React.FC = () => {
   return (

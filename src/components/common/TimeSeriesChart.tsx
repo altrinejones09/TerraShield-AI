@@ -139,7 +139,11 @@ export const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
           viewBox={`0 0 ${viewWidth} ${height}`}
           style={{ width: '100%', height: 'auto', overflow: 'visible', display: 'block' }}
           onMouseLeave={() => setHoverIndex(null)}
+          role="img"
+          aria-label={title}
         >
+          <title>{title}</title>
+          {subtitle && <desc>{subtitle}</desc>}
           <defs>
             {series.map(s => (
               <linearGradient key={`grad-${s.key}`} id={`grad-${s.key}`} x1="0" y1="0" x2="0" y2="1">

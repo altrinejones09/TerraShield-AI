@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Activity, ArrowRight, Play, CloudRain, Droplet, Compass, Radio } from 'lucide-react';
+import { Activity, ArrowRight, Play, CloudRain, Droplet, Compass, Radio } from 'lucide-react';
 import { RiskBadge } from '../common/RiskBadge';
 
 interface LandingHeroProps {

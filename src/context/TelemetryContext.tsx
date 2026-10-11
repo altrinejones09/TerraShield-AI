@@ -50,12 +50,12 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>('ALL');
   const [timeRange, setTimeRange] = useState<'6h' | '24h' | '7d'>('24h');
   const [riskFilter, setRiskFilter] = useState<'ALL' | RiskLevel>('ALL');
-  const [thresholds, setThresholdsState] = useState<RiskThresholdConfig>(loadThresholds());
+  const [thresholds, setThresholdsState] = useState<RiskThresholdConfig>(() => loadThresholds());
   const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState<string>(new Date().toISOString());
+  const [lastUpdated, setLastUpdated] = useState<string>(() => new Date().toISOString());
   const [environmentStatus, setEnvironmentStatus] = useState<ApiEnvironmentStatus>(
-    apiClient.getEnvironmentStatus()
+    () => apiClient.getEnvironmentStatus()
   );
 
   const refreshAll = useCallback(async () => {
@@ -84,9 +84,20 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, []);
 
   useEffect(() => {
-    refreshAll();
-    const interval = setInterval(refreshAll, 45000); // 45s periodic refresh
-    return () => clearInterval(interval);
+    let isMounted = true;
+    const fetchTelemetry = async () => {
+      if (isMounted) {
+        await refreshAll();
+      }
+    };
+    fetchTelemetry();
+    const interval = setInterval(() => {
+      if (isMounted) refreshAll();
+    }, 45000); // 45s periodic refresh
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [refreshAll]);
 
   const updateThresholds = (t: RiskThresholdConfig) => {

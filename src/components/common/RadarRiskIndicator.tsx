@@ -54,7 +54,17 @@ export const RadarRiskIndicator: React.FC<RadarRiskProps> = ({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        role="img"
+        aria-label={`Risk factor radar chart, overall score ${overallScore} out of 100`}
+      >
+        <title>Geotechnical Risk Factor Radar Chart</title>
+        <desc>
+          {`Composite risk score: ${overallScore}/100. Ground Tilt: ${tiltScore}/100, Soil Moisture: ${soilMoistureScore}/100, Rainfall: ${rainfallScore}/100, Vibration: ${vibrationScore}/100.`}
+        </desc>
         {/* Background concentric reference webs (25%, 50%, 75%, 100%) */}
         {[0.25, 0.5, 0.75, 1.0].map(ratio => {
           const webPoints = axes

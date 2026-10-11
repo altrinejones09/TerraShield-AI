@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layers, Server, Database, KeyRound, Cloud, ArrowDown, ShieldCheck } from 'lucide-react';
+import { Layers, Server, Database, Cloud, ShieldCheck } from 'lucide-react';
 
 export const SystemArchitecture: React.FC = () => {
   return (

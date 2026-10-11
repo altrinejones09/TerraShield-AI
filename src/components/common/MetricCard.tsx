@@ -96,6 +96,11 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       {thresholdMod !== undefined && (
         <div style={{ marginTop: '0.75rem', marginBottom: '0.5rem' }}>
           <div
+            role="progressbar"
+            aria-valuenow={num}
+            aria-valuemin={0}
+            aria-valuemax={maxScale}
+            aria-label={`${title} reading: ${value} ${unit}`}
             style={{
               height: '4px',
               backgroundColor: 'rgba(255, 255, 255, 0.08)',

@@ -6,12 +6,9 @@ import {
   Radio,
   AlertTriangle,
   CheckCircle2,
-  Clock,
   Layers,
   ShieldCheck,
   ChevronRight,
-  TrendingUp,
-  Activity,
 } from 'lucide-react';
 import { useTelemetry } from '../../context/TelemetryContext';
 import { RiskBadge } from '../common/RiskBadge';
@@ -36,7 +33,6 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
     setTimeRange,
     thresholds,
     acknowledgeAlert,
-    lastUpdated,
   } = useTelemetry();
 
   // Find targeted reading
@@ -84,7 +80,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.5rem' }}>
-            <div style={{ flex: '1 1 500px' }}>
+            <div style={{ flex: '1 1 min(100%, 480px)', minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
                 <RiskBadge level={activeAssessment.riskLevel} size="lg" />
                 <StatusPill type="data-source" value={activeReading.source} />
@@ -93,7 +89,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
                 </span>
               </div>
 
-              <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.4rem' }}>
+              <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.4rem', wordBreak: 'break-word' }}>
                 {activeDevice ? activeDevice.name : activeReading.deviceId}
               </h3>
               <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '1rem' }}>
@@ -109,22 +105,22 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
                   marginBottom: '1rem',
                 }}
               >
-                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
-                  Risk Engine Assessment Reasoning:
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', textTransform: 'uppercase', marginBottom: '0.3rem', letterSpacing: '0.04em' }}>
+                  Demonstration Risk Assessment:
                 </div>
-                <p style={{ fontSize: '0.875rem', color: '#e2e8f0', lineHeight: 1.5, margin: 0 }}>
+                <p style={{ fontSize: '0.875rem', color: '#e2e8f0', lineHeight: 1.5, margin: 0, wordBreak: 'break-word' }}>
                   {activeAssessment.reason}
                 </p>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#38bdf8' }}>
-                <ShieldCheck size={16} />
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.8rem', color: '#38bdf8', lineHeight: 1.4 }}>
+                <ShieldCheck size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
                 <span>{activeAssessment.recommendedAction}</span>
               </div>
             </div>
 
             {/* Radar Factor Matrix */}
-            <div style={{ flex: '0 0 auto', display: 'flex', justifyContent: 'center' }}>
+            <div style={{ flex: '0 0 auto', margin: '0 auto', display: 'flex', justifyContent: 'center' }}>
               <RadarRiskIndicator
                 overallScore={activeAssessment.overallScore}
                 rainfallScore={activeAssessment.factors.rainfallScore}
@@ -140,7 +136,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
 
       {/* Key Geotechnical Metric Cards */}
       {activeReading && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
+        <div className="grid-cards">
           <MetricCard
             title="Peak Rainfall Rate"
             value={activeReading.rainfall}
@@ -221,7 +217,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(460px, 1fr))', gap: '1.25rem' }}>
+        <div className="grid-charts">
           <TimeSeriesChart
             title="Hydrological Load (Rainfall &amp; Soil Saturation)"
             subtitle="Comparing mm/h precipitation vs volumetric water content"
@@ -251,7 +247,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
       </div>
 
       {/* Active Alerts & Telemetry Stations Quick Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.25rem' }}>
+      <div className="grid-split">
         {/* Active Life-Safety Alerts */}
         <div className="glass-panel" style={{ padding: '1.25rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
