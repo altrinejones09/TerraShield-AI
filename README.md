@@ -248,7 +248,7 @@ cp .env.example .env
 ```powershell
 npm test
 ```
-*Executes all 17 automated tests covering the risk engine, input validation, alert workflows, and backend handlers.*
+*Executes all 18 automated tests covering the risk engine, input validation, alert workflows, and backend handlers.*
 
 ### Run Local Development Server
 ```powershell
@@ -271,7 +271,7 @@ Generates optimized static bundle in `dist/`.
 - [AWS CLI v2](https://aws.amazon.com/cli/) configured (`aws configure`)
 - [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
 
-### Deploy Backend via AWS SAM
+### Deploy Backend via AWS SAM (Optional Cloud Mode)
 ```bash
 # 1. Build serverless functions
 sam build
@@ -290,27 +290,34 @@ SAM will output:
 - `UserPoolId` (e.g. `us-east-1_xxxxxxxxx`)
 - `UserPoolClientId` (e.g. `xxxxxxxxxxxxxxxxxxxxxxxxxx`)
 
-### Connect Frontend to AWS
-Update your `.env` file with the SAM outputs:
+### Connect Frontend to AWS (Optional)
+If connecting to deployed SAM infrastructure, set environment variables:
 ```ini
 VITE_API_BASE_URL=https://xxxxxx.execute-api.us-east-1.amazonaws.com
 VITE_COGNITO_USER_POOL_ID=us-east-1_xxxxxxxxx
 VITE_COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
 VITE_AWS_REGION=us-east-1
 ```
-
-Rebuild the frontend:
-```bash
-npm run build
-```
+*(If unset, TerraShield AI automatically runs in Deterministic Demonstration Mode using local in-browser persistence).*
 
 ### Deploy Frontend to AWS Amplify Hosting
-1. Push your repository to GitHub.
-2. In the **AWS Amplify Console**, select **Host web app** &rarr; **GitHub**.
-3. Choose your `TerraShield-AI` repository and branch `main`.
-4. Amplify will automatically detect `amplify.yml`.
-5. Under **Environment variables**, set `VITE_API_BASE_URL`, `VITE_COGNITO_USER_POOL_ID`, and `VITE_COGNITO_CLIENT_ID`.
-6. Click **Save and Deploy**.
+1. Repository is hosted at: `https://github.com/altrinejones09/TerraShield-AI` on branch `master`.
+2. In the **AWS Amplify Console** (https://console.aws.amazon.com/amplify/):
+   - Choose **Host web app** &rarr; select **GitHub**.
+   - Select repository `altrinejones09/TerraShield-AI` and branch `master`.
+3. Build Settings:
+   - Amplify automatically loads `amplify.yml` from the root directory.
+   - Build Command: `npm run build`
+   - Base directory: `dist`
+4. Single-Page Application (SPA) Routing Fallback:
+   - In Amplify Console, navigate to **Hosting** &rarr; **Rewrites and redirects**.
+   - Add/Verify SPA rewrite rule:
+     - **Source address:** `</^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json)$)([^.]+$)/>` (or `/<*>`)
+     - **Target address:** `/index.html`
+     - **Type:** `200 (Rewrite)`
+5. Public Access (Evaluation / Judges):
+   - Under **App settings** &rarr; **Access control**, verify access is set to **Public** (no password protection).
+6. Click **Save and deploy**. Amplify will provision, build, and assign a public `https://master.xxxx.amplifyapp.com` URL.
 
 ### Teardown / Resource Cleanup
 To prevent unwanted AWS charges after testing:
