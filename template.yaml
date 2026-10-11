@@ -1,0 +1,290 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  TerraShield AI — Landslide Early Warning & Life-Safety System
+  Serverless Infrastructure: API Gateway, AWS Lambda, DynamoDB, Amazon Cognito, and AWS IoT Core.
+
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 256
+    Runtime: nodejs20.x
+    Architectures:
+      - arm64
+    Environment:
+      Variables:
+        DYNAMODB_TABLE_DEVICES: !Ref DevicesTable
+        DYNAMODB_TABLE_READINGS: !Ref ReadingsTable
+        DYNAMODB_TABLE_ALERTS: !Ref AlertsTable
+        COGNITO_USER_POOL_ID: !Ref UserPool
+        COGNITO_CLIENT_ID: !Ref UserPoolClient
+
+Resources:
+  # =========================================================================
+  # 1. Amazon Cognito Authentication
+  # =========================================================================
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: TerraShield-Analysts-Pool
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Required: true
+          Mutable: true
+        - Name: name
+          AttributeDataType: String
+          Required: false
+          Mutable: true
+        - Name: organization
+          AttributeDataType: String
+          Required: false
+          Mutable: true
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: TerraShield-Web-Client
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+
+  # =========================================================================
+  # 2. Amazon DynamoDB Tables (Bounded Key Design)
+  # =========================================================================
+  DevicesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: TerraShield-Devices
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: deviceId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: deviceId
+          KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  ReadingsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: TerraShield-Readings
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: deviceId
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: deviceId
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  AlertsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: TerraShield-Alerts
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: deviceId
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+        - AttributeName: severity
+          AttributeType: S
+      KeySchema:
+        - AttributeName: deviceId
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: SeverityIndex
+          KeySchema:
+            - AttributeName: severity
+              KeyType: HASH
+            - AttributeName: timestamp
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  # =========================================================================
+  # 3. Amazon API Gateway (HTTP API v2)
+  # =========================================================================
+  TerraShieldApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            IdentitySource: $request.header.Authorization
+            JwtConfiguration:
+              Audience:
+                - !Ref UserPoolClient
+              Issuer: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}
+
+  # =========================================================================
+  # 4. AWS Lambda Backend Functions
+  # =========================================================================
+  HealthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/
+      Handler: src/handlers/health.healthHandler
+      Events:
+        GetHealth:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TerraShieldApi
+            Path: /health
+            Method: GET
+
+  ReadingsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/
+      Handler: src/handlers/readings.readingsHandler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ReadingsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref DevicesTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AlertsTable
+      Events:
+        GetLatest:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TerraShieldApi
+            Path: /readings/latest
+            Method: GET
+        GetHistory:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TerraShieldApi
+            Path: /readings/history
+            Method: GET
+        PostReading:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TerraShieldApi
+            Path: /readings
+            Method: POST
+
+  RiskFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/
+      Handler: src/handlers/risk.riskHandler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref ReadingsTable
+      Events:
+        GetCurrentRisk:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TerraShieldApi
+            Path: /risk/current
+            Method: GET
+        GetRiskHistory:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TerraShieldApi
+            Path: /risk/history
+            Method: GET
+
+  AlertsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/
+      Handler: src/handlers/alerts.alertsHandler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AlertsTable
+      Events:
+        GetAlerts:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TerraShieldApi
+            Path: /alerts
+            Method: GET
+        AcknowledgeAlert:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TerraShieldApi
+            Path: /alerts/{id}/acknowledge
+            Method: POST
+
+  DevicesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/
+      Handler: src/handlers/devices.devicesHandler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DevicesTable
+      Events:
+        GetDevices:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TerraShieldApi
+            Path: /devices
+            Method: GET
+        PostDevice:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TerraShieldApi
+            Path: /devices
+            Method: POST
+        GetDeviceById:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TerraShieldApi
+            Path: /devices/{id}
+            Method: GET
+
+Outputs:
+  ApiEndpoint:
+    Description: HTTP API Gateway Endpoint URL
+    Value: !Sub https://${TerraShieldApi}.execute-api.${AWS::Region}.amazonaws.com
+
+  UserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref UserPool
+
+  UserPoolClientId:
+    Description: Cognito App Client ID
+    Value: !Ref UserPoolClient
+
+  ReadingsTableName:
+    Description: DynamoDB Readings Table
+    Value: !Ref ReadingsTable
